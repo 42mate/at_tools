@@ -1,0 +1,4 @@
+name = Adaptive theme tools
+description = Adaptive theme tools module to generate css files on cache clear.
+core = 7.x
+package = Custom
