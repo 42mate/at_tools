@@ -1,26 +1,24 @@
 <?php
+
 /**
  * Implements hook_flush_caches().
  */
 function at_tools_flush_caches() {
-	global $theme_key;
+
+	$theme_list = list_themes(TRUE);
+	$count = 0;
 	//We need this hook to submit form settings button programmatically.
-	foreach (array($theme_key) as $theme_name) {
-		$form_state['build_info']['args'][0] = $theme_name;
-		//Need this settings to avoid notices from validate callback.
-		$form_state['values']['global_default_layout'] = 'smartphone-portrait';
-		$form_state['values']['global_file_path'] = 'theme_directory';
-		$form_state['values']['bigscreen_layout'] = 'two_sidebars_right';
-		$form_state['values']['tablet_landscape_layout'] = 'two_sidebars_right_stack';
-		$form_state['values']['tablet_portrait_layout'] = 'two_sidebars_right_stack';
-		$form_state['values']['smartphone_landscape_layout'] = 'one_col_stack';
-		$form_state['values']['bigscreen_sidebar_first'] = 300;
-		$form_state['values']['bigscreen_sidebar_second'] = 300;
-		$form_state['values']['tablet_landscape_sidebar_first'] = 40;
-		$form_state['values'] = array();
-		module_load_include('inc', 'system', 'system.admin');
-		drupal_form_submit('system_theme_settings', $form_state);
+	foreach ($theme_list as $theme_name) {
+
+		if ($theme_name->status == 1) {
+			$form_state['build_info']['args'][0] = $theme_name->name;
+			$form_state['values'] = array();
+			module_load_include('inc', 'system', 'system.admin');
+			drupal_form_submit('system_theme_settings', $form_state);
+			drupal_set_message(t('Cached CSS files rebuilt for !themename', array('!themename' => $theme_name->name)), 'status');
+			$count++;
+		}
 	}
 
-	drupal_set_message(t('Cached CSS files rebuilt for !themename', array('!themename' => $theme_name)), 'status');
+	drupal_set_message(t('!amount themes have been rebuilt', array('!amount' => $count)), 'status');
 }
